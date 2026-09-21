@@ -23,6 +23,7 @@
 | **08** | [Lifecycle, Debugging & Security](file:///Users/kyawwaiyan/Documents/my-Home-tech/Docker-Course/08-lifecycle-debugging-and-security.md) | Container States, Logs, Exec, Top, Stats, Non-root User, Security |
 | **09** | [Workflow, Optimization & Best Practices](file:///Users/kyawwaiyan/Documents/my-Home-tech/Docker-Course/09-dev-workflow-production-optimization-best-practices.md) | Dev Workflow, Production Setup, Image Optimization, Best Practices |
 | **10** | [Real-World Laravel Project Setup](file:///Users/kyawwaiyan/Documents/my-Home-tech/Docker-Course/10-real-world-laravel-docker-project.md) | အဆင်သင့် Run နိုင်သော Nginx + PHP 8.3 + MySQL + Redis + Mailpit Stack |
+| **🚀 ADV** | [**Advanced Docker & Kubernetes (K8s)**](file:///Users/kyawwaiyan/Documents/my-Home-tech/Docker-Course/advanced-docker-kubernetes-production/README.md) | **DevOps Production Guide:** Kubernetes, Swarm, Ingress, PV/PVC, HPA, Helm, GitOps (ArgoCD & GitHub Actions), Monitoring |
 
 ---
 
@@ -37,9 +38,12 @@
    - အခန်း ၃၊ ၄၊ ၅ တို့ကို အခြေခံပြီးနောက် [07-php-laravel-nginx-mysql-redis-stack.md](file:///Users/kyawwaiyan/Documents/my-Home-tech/Docker-Course/07-php-laravel-nginx-mysql-redis-stack.md) နှင့် [10-real-world-laravel-docker-project.md](file:///Users/kyawwaiyan/Documents/my-Home-tech/Docker-Course/10-real-world-laravel-docker-project.md) သို့ တိုက်ရိုက်သွားရောက် လေ့လာနိုင်ပါသည်။
    - လက်တွေ့ `laravel-docker-project` folder ထဲရှိ Configuration များကို Run ကြည့်နိုင်ပါသည်။
 
-3. **Quick Command Lookup:**
+3. **DevOps & Production Engineers (Advanced):**
+   - [advanced-docker-kubernetes-production/](file:///Users/kyawwaiyan/Documents/my-Home-tech/Docker-Course/advanced-docker-kubernetes-production/README.md) သို့ သွားရောက်၍ Multi-Node Clustering, Kubernetes Architecture, High Availability, GitOps CI/CD နှင့် Production Manifests များကို လေ့လာနိုင်ပါသည်။
+
+4. **Quick Command Lookup:**
    - Command တိုင်း၏ flag များ၊ ရှင်းလင်းချက်များနှင့် ဥပမာများကို [DOCKER-COMMANDS-REFERENCE.md](file:///Users/kyawwaiyan/Documents/my-Home-tech/Docker-Course/DOCKER-COMMANDS-REFERENCE.md) တွင် အချိန်မရွေး ရှာဖွေကြည့်ရှုနိုင်ပါသည်။
 
 ---
-*Ready to master Docker? Let's start with Chapter 1!*
-# docker-course
+*Ready to master Docker and Kubernetes? Let's get started!*
+
