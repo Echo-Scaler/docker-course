@@ -185,13 +185,19 @@ COPY . /var/www/html
 | **Go / Rust (Compiled binaries)** | `/app` (သို့မဟုတ် Scratch image တွင် `/`) | Binary တစ်ခုတည်းသာ run မည်ဖြစ်၍ ရှင်းလင်းသော path ကို ရွေးချယ်ခြင်း |
 
 > [!TIP]
-> `WORKDIR` သတ်မှတ်ပြီးပါက နောက်ဆက်တွဲ `COPY` တွင် path အပြည့် ရေးစရာမလိုဘဲ `COPY . .` သို့မဟုတ် `COPY . ./` ဟု ရေးသားနိုင်ပါသည်။
-> ```dockerfile
-> WORKDIR /var/www/html
-> COPY . .
-> ```
-
----
+> **`COPY . .` နှင့် `COPY . ./` ကွာခြားချက် (နှင့် `..` / `../` ၏ သဘောတရား):**
+> 
+> **၁။ `COPY . .` vs `COPY . ./` (Single Dot):**
+> * ပထမ `.` (Source) = မိမိ Host ကွန်ပျူတာပေါ်ရှိ လက်ရှိ Build Context Directory (ဥပမာ- project root)။
+> * ဒုတိယ `.` သို့မဟုတ် `./` (Destination) = Container အတွင်းရှိ လက်ရှိ `WORKDIR` (ဥပမာ- `/var/www/html`)။
+> * **ကွာခြားချက်:** ရလဒ်အားဖြင့် အတူတူပင် ဖြစ်သော်လည်း **`COPY . ./` (အနောက်တွင် slash `/` ထည့်ခြင်း)** သည် Docker Engine အား "ရောက်ရှိမည့်နေရာသည် Folder/Directory အစစ်အမှန် ဖြစ်သည်" ဟု ပိုမို တိကျစွာ အာမခံချက်ပေးသောကြောင့် Best Practice အဖြစ် ပိုမို သုံးစွဲကြသည်။
+> 
+> **၂။ `..` နှင့် `../` (Double Dots - Parent Directory သဘောတရား):**
+> * Linux တွင် `.` သည် Current Directory ဖြစ်ပြီး `..` သည် Parent Directory (တစ်ဆင့်အထက်ရှိ ဖိုဒါ) ဖြစ်သည်။
+> * **Source အပိုင်းတွင် `..` ကို သုံး၍ မရပါ (Error တက်မည်):**
+>   - ဥပမာ- `COPY .. .` သို့မဟုတ် `COPY ../something .` ဟု ရေးပါက Docker က `forbidden path outside the build context` ဟု Error ချက်ချင်း ပြပါမည်။ အဘယ်ကြောင့်ဆိုသော် Docker သည် လုံခြုံရေးအရ Build Context ပြင်ပသို့ ထွက်ခွင့် မပြုသောကြောင့် ဖြစ်သည်။
+> * **Destination အပိုင်းတွင် `..` သုံးပါက:**
+>   - အကယ်၍ `WORKDIR /var/www/html` ဟု ပေးထားချိန်တွင် `COPY . ..` သို့မဟုတ် `COPY . ../` ဟု ရေးပါက ဖိုင်များသည် `/var/www/html` ထဲ မရောက်ဘဲ ၎င်း၏ အထက်ဖိုဒါဖြစ်သော `/var/www/` ထဲသို့ ရောက်ရှိသွားပါမည်။
 
 #### ၃။ Multi-Stage Build ၏ `COPY --from` ဘယ်လို အလုပ်လုပ်ပြီး ဘာကြောင့် သုံးသလဲ?
 
