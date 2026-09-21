@@ -21,6 +21,9 @@
 8. [Docker Volume Management Commands](#8-docker-volume-management-commands)
 9. [Docker Network Management Commands](#9-docker-network-management-commands)
 10. [Docker Compose Commands](#10-docker-compose-commands)
+11. [Modern Advanced Commands (Watch, Context, Update, Events)](#11-modern-advanced-commands)
+12. [လက်တွေ့ လုပ်ငန်းခွင်တွင် အများဆုံး သုံးသော Top Commands များ (Real-World Daily Drivers 80/20 Rule)](#12-လက်တွေ့-လုပ်ငန်းခွင်တွင်-အများဆုံး-သုံးသော-top-commands-များ)
+13. [ဒါတွေက Docker Command အားလုံးပဲလား? (Command Hierarchy & Anatomy)](#13-ဒါတွေက-docker-command-အားလုံးပဲလား)
 
 ---
 
@@ -856,17 +859,161 @@ Docker Compose သည် Multi-container applications (ဥပမာ- Nginx + Lar
 - **ရည်ရွယ်ချက်:** Host machine နှင့် Compose service container တစ်ခုခုကြား File ကူးယူရန်။
 - **Real-World Example:**
   ```bash
-  docker compose cp ./my-file.sql mysql:/my-file.sql
+  docker compose kill
+  docker compose rm -f
   ```
 
 ---
 
-### `docker compose rm` နှင့် `docker compose kill`
-- **ရည်ရွယ်ချက်:**
-  - `docker compose kill` : Compose services များကို အတင်းအဓမ္မ `SIGKILL` ဖြင့် ရပ်တန့်ရန်။
-  - `docker compose rm` : ရပ်တန့်သွားသော Compose service containers များကို ဖျက်ရန်။
+### `docker compose start`, `docker compose stop` နှင့် `docker compose restart`
+- **ရည်ရွယ်ချက်:** Containers များကို မဖျက်ဘဲ ရပ်တန့်ခြင်း၊ ပြန်လည်စတင်ခြင်း သို့မဟုတ် Restart လုပ်ခြင်း။
 - **Real-World Example:**
   ```bash
-  docker compose kill
-  docker compose rm -f
+  docker compose stop php
+  docker compose start php
+  docker compose restart nginx
   ```
+
+---
+
+## 11. Modern Advanced Commands (Watch, Context, Update, Events)
+
+### `docker compose watch` (Hot-Reloading in Docker Compose v2.22+)
+- **ရည်ရွယ်ချက်:** Local စက်ထဲရှိ Code များ ပြင်ဆင်မှုကို အချိန်နှင့်တစ်ပြေးညီ စောင့်ကြည့်ပြီး Container ထဲသို့ အလိုအလျောက် Sync ပြုလုပ်ပေးခြင်း သို့မဟုတ် Service ကို အလိုအလျောက် Rebuild လုပ်ပေးခြင်း။
+- **Syntax & Real-World Example:**
+  ```bash
+  docker compose watch
+  ```
+- **အလုပ်လုပ်ပုံနှင့် အကျိုးသက်ရောက်မှု (Effect):**
+  `compose.yaml` တွင် `develop.watch` သတ်မှတ်ထားပါက File တစ်ခု Save လိုက်သည်နှင့် Container ထဲသို့ ချက်ချင်း Sync ရောက်သွားသဖြင့် Local Development Speed ကို အဆမတန် မြန်ဆန်စေသည်။
+
+---
+
+### `docker context` (Multi-Environment Remote Docker Management)
+- **ရည်ရွယ်ချက်:** Local Docker မှနေ၍ Remote Cloud Server (AWS EC2, DigitalOcean, Staging) ပေါ်ရှိ Docker Daemon သို့ SSH ဖြင့် တိုက်ရိုက် ပြောင်းလဲ ထိန်းချုပ်ရန်။
+- **Syntax:**
+  ```bash
+  docker context ls
+  docker context create <context-name> --docker "host=ssh://user@server-ip"
+  docker context use <context-name>
+  ```
+- **Real-World Example:**
+  ```bash
+  # Remote Server သို့ ချိတ်ဆက်သည့် context ဆောက်ခြင်း
+  docker context create production-server --docker "host=ssh://ubuntu@54.254.12.34"
+
+  # Production Docker သို့ ပြောင်းလဲ ထိန်းချုပ်ခြင်း
+  docker context use production-server
+
+  # ယခုအခါ docker ps ဟု ရိုက်ပါက Production Server ပေါ်ရှိ Containers များကို မြင်ရမည်
+  docker ps
+  ```
+
+---
+
+### `docker update` (Live Resource Limit Adjustments)
+- **ရည်ရွယ်ချက်:** Container ကို Stop လုပ်စရာ မလိုဘဲ အလုပ်လုပ်နေစဉ် (Runtime) တွင် CPU နှင့် Memory Limit များကို Dynamic ပြောင်းလဲ သတ်မှတ်ရန်။
+- **Real-World Example:**
+  ```bash
+  docker update --memory 2g --cpus 2.0 laravel-app
+  ```
+- **Effect:** Container မရပ်တန့်သွားဘဲ RAM limit ကို 2GB သို့ ချက်ချင်း တိုးမြှင့်ပေးသည်။
+
+---
+
+### `docker events` (Real-Time Daemon Monitoring)
+- **ရည်ရွယ်ချက်:** Docker Engine အတွင်း ဖြစ်ပျက်နေသော အဖြစ်အပျက်များ (Container create, start, die, kill, network connect) ကို Streaming Live စောင့်ကြည့်ရန်။
+- **Real-World Example:**
+  ```bash
+  docker events --filter 'type=container'
+  ```
+
+---
+
+### `docker wait` (CI/CD Pipeline Automation)
+- **ရည်ရွယ်ချက်:** Container တစ်ခု အလုပ်လုပ်ပြီး ရပ်တန့်သွားသည်အထိ စောင့်ဆိုင်းပြီး ၎င်း၏ Exit Code (0 = အောင်မြင်၊ 1 = ကျရှုံး) ကို ရယူရန်။
+- **Real-World Example:**
+  ```bash
+  docker wait migration-runner
+  ```
+
+---
+
+## 12. လက်တွေ့ လုပ်ငန်းခွင်တွင် အများဆုံး သုံးသော Top Commands များ (Real-World Daily Drivers 80/20 Rule)
+
+ကုမ္ပဏီများ၊ Startups များနှင့် Software House များတွင် နေ့စဉ် အလုပ်လုပ်ရာ၌ Docker Command ပေါင်း ၇၀ ကျော်လုံးကို နေ့တိုင်း မသုံးကြပါ။ **၈၀/၂၀ စည်းမျဉ်း (Pareto Principle)** အရ အောက်ဖော်ပြပါ **Top 18 Commands** သည် နေ့စဉ် လုပ်ငန်းခွင်၏ ၉၅% ကို လွှမ်းခြုံထားပါသည်-
+
+```mermaid
+pie title လက်တွေ့ လုပ်ငန်းခွင်တွင် Commands အသုံးပြုမှု အချိုးအစား
+    "Docker Compose Commands (up, down, logs, exec)" : 55
+    "Debugging & Inspection (ps, logs, exec, stats)" : 25
+    "Image Build & Push (build, tag, push)" : 10
+    "Cleanup & Resource (prune, df)" : 7
+    "Other Special Commands" : 3
+```
+
+---
+
+### 🏆 နေ့စဉ် မဖြစ်မနေ အသုံးပြုရသော Top 18 Commands အသေးစိတ် ရှင်းလင်းချက်
+
+| No | Command | Effect (ဘာဖြစ်သွားသလဲ) | ဘယ်အချိန်မှာ သုံးသလဲ (Real-World Use Case) |
+| :---: | :--- | :--- | :--- |
+| **၁** | `docker compose up -d` | Background တွင် Containers, Networks, Volumes အားလုံးကို ဖန်တီးပြီး တစ်ပြိုင်နက် စတင် run ပေးသည်။ | မနက်တိုင်း အလုပ်စတင်ချိန် သို့မဟုတ် Project စတင် Run သည့်အခါ |
+| **၂** | `docker compose down` | Containers များနှင့် Networks များကို သပ်ရပ်စွာ ပိတ်သိမ်း ဖျက်ဆီးပေးသည်။ (Named Volumes များ ကျန်ရှိနေမည်) | ညနေ အလုပ်သိမ်းချိန် သို့မဟုတ် Stack တစ်ခုလုံးကို Clean shutdown လုပ်လိုသည့်အခါ |
+| **၃** | `docker compose ps` | Compose Project ထဲရှိ Services များ ရှင်သန်နေမှု (Up) သို့မဟုတ် သေဆုံးနေမှု (Exit) နှင့် Ports များကို ပြပေးသည်။ | Application တက်/မတက် ချက်ချင်း စစ်ဆေးလိုသည့်အခါ |
+| **၄** | `docker compose logs -f <service>` | သတ်မှတ်ထားသော Service (ဥပမာ- `php` သို့မဟုတ် `nginx`) ၏ Terminal Output Log များကို Live ကြည့်ရှုပေးသည်။ | Error ရှာဖွေခြင်း (Debugging) နှင့် API Request များကို မျက်ခြည်မပြတ် စောင့်ကြည့်သည့်အခါ |
+| **၅** | `docker compose exec <service> sh` | Running ဖြစ်နေသော Container ထဲသို့ ချက်ချင်း ဝင်ရောက်ပြီး Shell Prompt ရရှိစေသည်။ | Container ထဲ ဝင်ရောက် စစ်ဆေးခြင်း၊ Command များ run ခြင်း (ဥပမာ- `php artisan tinker`) |
+| **၆** | `docker compose run --rm <service> <cmd>` | ယာယီ Container တစ်ခု ဆောက်၍ Command run ပြီးသည်နှင့် ထို Container ကို အလိုအလျောက် ပြန်ဖျက်ပေးသည်။ | Database Migration လုပ်ခြင်း (`php artisan migrate`) သို့မဟုတ် Node build ဆွဲခြင်း |
+| **၇** | `docker compose build --no-cache` | ယခင် သိမ်းဆည်းထားသော Cache အဟောင်းများကို လုံးဝ မသုံးဘဲ Image များကို အစအဆုံး အသစ် ပြန် build သည်။ | `Dockerfile` သို့မဟုတ် `package.json` ပြင်ပြီး Build မလိုက်နာတော့ဘဲ Error တက်နေသည့်အခါ |
+| **၈** | `docker ps -a` | စက်ထဲတွင် လည်ပတ်နေသော Container ရော ရပ်တန့်သွားသော (Stopped/Exited) Container အားလုံးကို ပြသသည်။ | Container ဘာကြောင့် သေသွားသလဲ (Exit Code ဘယ်လောက်လဲ) ရှာဖွေသည့်အခါ |
+| **၉** | `docker logs --tail 100 -f <container>` | Container ၏ နောက်ဆုံး Log အကြောင်းရေ ၁၀၀ ကို ဆွဲထုတ်ပြီး အသစ်တက်လာမည့် Log များကို စောင့်ကြည့်သည်။ | Production Server တွင် CPU/Memory တက်သွားပြီး Log အဟောင်းများ အများကြီး မဖတ်ချင်သည့်အခါ |
+| **၁၀** | `docker exec -it <container> sh` | Single Container အတွင်းသို့ Interactive Terminal ဖြင့် တိုက်ရိုက် ဝင်ရောက်သည်။ | Compose မဟုတ်ဘဲ standalone container တစ်ခုခုထဲ ဝင်ရောက် စစ်ဆေးလိုသည့်အခါ |
+| **၁၁** | `docker stop <container>` | Process အား `SIGTERM` ပေးပို့၍ အလုပ်များကို သပ်သပ်ရပ်ရပ် သိမ်းဆည်းကာ Graceful Shutdown လုပ်ပေးသည်။ | Container ကို ယာယီ ခေတ္တ ရပ်တန့်လိုသည့်အခါ |
+| **၁၂** | `docker restart <container>` | Container ကို ချက်ချင်း ပိတ်ပြီး ချက်ချင်း ပြန်ဖွင့်ပေးသည်။ | Environment variable သို့မဟုတ် Configuration အသစ် ထည့်သွင်းပြီး Reload လုပ်လိုသည့်အခါ |
+| **၁၃** | `docker rm -f <container>` | အလုပ်လုပ်နေသော Container ကို ချက်ချင်း အတင်းအဓမ္မ သတ်ပစ်ပြီး ဖျက်ဆီးပစ်သည်။ | Container တစ်ခု ပျက်စီးပြီး hang နေသဖြင့် အမြန်ဆုံး ရှင်းထုတ်လိုသည့်အခါ |
+| **၁၄** | `docker rmi <image>` | ဒေါင်းလုဒ်ဆွဲထားသော သို့မဟုတ် Build ထားသော Docker Image ကို စက်ထဲမှ အပြီးတိုင် ဖျက်ပစ်သည်။ | Hard Disk နေရာ ပြန်လည် ချွေတာလိုသည့်အခါ |
+| **၁၅** | `docker system df` | Docker က မိမိ ကွန်ပျူတာ Hard Drive ထဲတွင် GB မည်မျှ သုံးထားသည်ကို အမျိုးအစားအလိုက် ခွဲပြသည်။ | ကွန်ပျူတာ Disk နေရာ ပြည့်ခါနီးဖြစ်ပြီး Docker ကြောင့်လား စစ်ဆေးသည့်အခါ |
+| **၁၆** | `docker system prune -af --volumes` | မသုံးတော့သည့် Stopped Containers, Images, Networks နှင့် Unused Volumes အားလုံးကို လုံးဝရှင်းပစ်သည်။ | Disk နေရာ ချက်ချင်း 10GB ~ 50GB ပြန်လည်ရယူလိုသည့်အခါ (Deep Clean) |
+| **၁၇** | `docker cp <src> <dest>` | Container အတွင်းမှ ဖိုင်ကို အပြင်ထုတ်ခြင်း သို့မဟုတ် အပြင်မှ ဖိုင်ကို Container ထဲ သွင်းခြင်း။ | Container ထဲရှိ Database dump (`.sql`) ကို အပြင်သို့ အမြန် ကူးယူလိုသည့်အခါ |
+| **၁၈** | `docker build -t name:tag .` | လက်ရှိ Directory ထဲရှိ `Dockerfile` ကို သုံးပြီး Custom Docker Image တည်ဆောက်သည်။ | CI/CD Pipeline တွင် Production Image build သည့်အခါ |
+
+---
+
+## 13. ဒါတွေက Docker Command အားလုံးပဲလား? (Command Hierarchy & Anatomy)
+
+### 🤔 ဒါတွေက Docker ရဲ့ Command အားလုံးပဲလား?
+**အဖြေ:** ဟုတ်ပါသည်။ ဤ Reference Guide တွင် ဖော်ပြထားသော Commands များသည် Docker Engine CLI ၏ **Core Commands များအားလုံး (၁၀၀%)** ဖြစ်ပြီး အောက်ပါ အမျိုးအစားများဖြင့် စနစ်တကျ ဖွဲ့စည်းထားပါသည်-
+
+```text
+Docker CLI Architecture
+│
+├── 1. Management Commands (Modern Docker v1.13+ Structured Syntax)
+│   ├── docker container   (run, start, stop, rm, ps, exec, cp, stats, logs)
+│   ├── docker image       (build, tag, push, pull, ls, rm, prune, inspect)
+│   ├── docker volume      (create, ls, inspect, rm, prune)
+│   ├── docker network     (create, ls, connect, disconnect, rm, prune)
+│   ├── docker system      (df, prune, info, events)
+│   ├── docker context     (create, ls, use, rm)
+│   ├── docker builder     (buildx, prune, create)
+│   └── docker compose     (up, down, ps, logs, exec, build, watch)
+│
+├── 2. Legacy / Root Shortcuts (အလွယ်သုံး Command များ)
+│   ├── docker run         (= docker container run)
+│   ├── docker ps          (= docker container ls)
+│   ├── docker rm          (= docker container rm)
+│   ├── docker logs        (= docker container logs)
+│   ├── docker exec        (= docker container exec)
+│   └── docker images      (= docker image ls)
+│
+└── 3. Enterprise / Advanced Modules
+    ├── docker swarm / service / secret / config (Container Orchestration)
+    ├── docker plugin                            (Storage/Network Plugins)
+    └── docker scout / scan                      (Image Vulnerability Security Scanning)
+```
+
+### 💡 သိမှတ်ဖွယ်ရာ - အဘယ်ကြောင့် Command ပုံစံ နှစ်မျိုး ရှိနေရသနည်း?
+* **Legacy Form (Root Command):** ရှေးယခင် Docker စတင်ချိန်တွင် `docker run`, `docker ps`, `docker images` ဟူ၍ ရေးခဲ့ကြသည်။ (ရိုက်ရ အတိုဆုံးဖြစ်၍ Developer အများစု ယနေ့တိုင် အလေ့အထအရ သုံးစွဲကြသည်)။
+* **Management Form:** Docker ပိုမို ကြီးမားလာသောအခါ အရာဝတ္ထု (Object) အလိုက် သန့်ရှင်းစွာ ခွဲခြားရန် `docker container <action>`, `docker image <action>`, `docker network <action>` ဟု ပြောင်းလဲ ဖွဲ့စည်းခဲ့သည်။
+* **သတင်းကောင်း:** ဤနှစ်မျိုးစလုံးသည် အတူတူပင်ဖြစ်ပြီး သင် ကြိုက်နှစ်သက်ရာ ပုံစံကို လွတ်လပ်စွာ အသုံးပြုနိုင်ပါသည်။
+
+---
